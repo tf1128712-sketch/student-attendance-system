@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Attendance Management</title>
+  <style>
+:root {
+  --navy: #172b4d;
+  --blue: #2457a7;
+  --light-blue: #edf4ff;
+  --ink: #243247;
+  --muted: #69778b;
+  --line: #e4eaf2;
+  --surface: #ffffff;
+  --page: #f5f7fb;
+  --green: #147d54;
+  --red: #b42336;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); }
+.container { max-width: 1120px; margin: 0 auto; padding: 32px 20px 24px; }
+.hero { padding: 28px 30px; border-radius: 20px; color: white; background: linear-gradient(120deg, #172b4d, #2862b5); box-shadow: 0 10px 28px #172b4d1a; }
+.eyebrow { margin: 0 0 10px; font-size: 11px; letter-spacing: 2px; font-weight: 800; opacity: .8; }
+h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.8px; }
+.hero p:last-child { margin: 10px 0 0; color: #e4edff; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; margin-top: 20px; box-shadow: 0 5px 18px #172b4d08; }
+.controls { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 7px; min-width: 190px; }
+.search-field { flex: 1; }
+label { color: #46556b; font-size: 13px; font-weight: 700; }
+input { width: 100%; border: 1px solid #d7dfeb; border-radius: 9px; padding: 11px 12px; background: #fff; color: var(--ink); font: inherit; outline: none; }
+input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #2457a71a; }
+.button { border: 0; border-radius: 9px; padding: 11px 15px; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; white-space: nowrap; transition: transform .12s, opacity .12s; }
+.button:hover { opacity: .9; }
+.button:active { transform: translateY(1px); }
+.primary { color: white; background: var(--blue); }
+.subtle { color: #42516a; background: #eef2f7; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+.stat-card { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 17px 19px; }
+.stat-card span { display: block; color: var(--muted); font-size: 13px; }
+.stat-card strong { display: block; margin-top: 8px; color: var(--navy); font-size: 28px; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 17px; }
+h2 { margin: 0; color: var(--navy); font-size: 20px; }
+.section-heading p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+th { text-align: left; padding: 13px 12px; background: #f7f9fc; color: #6a778a; font-size: 11px; text-transform: uppercase; letter-spacing: .7px; }
+td { padding: 13px 12px; border-bottom: 1px solid #edf0f5; font-size: 14px; }
+tbody tr:last-child td { border-bottom: 0; }
+.student-name { font-weight: 700; }
+.status-buttons { display: flex; gap: 7px; }
+.status-button { border: 1px solid #dce3ec; border-radius: 7px; padding: 7px 10px; color: #66748a; background: white; font-size: 12px; cursor: pointer; }
+.status-button.present.active { color: var(--green); border-color: #a8dfc5; background: #eaf8f1; font-weight: 800; }
+.status-button.absent.active { color: var(--red); border-color: #f0b8c0; background: #fff0f2; font-weight: 800; }
+.row-actions { display: flex; gap: 6px; }
+.small-button { border: 0; border-radius: 7px; padding: 7px 9px; background: #eef2f7; color: #46556b; font-size: 12px; cursor: pointer; }
+.small-button.delete { color: var(--red); background: #fff0f2; }
+.footer-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; }
+.save-status { color: var(--green); font-size: 12px; }
+.empty-message { color: var(--muted); padding: 24px 0; text-align: center; }
+footer { padding: 24px 8px 4px; text-align: center; color: #8290a3; font-size: 12px; }
+dialog { border: 0; border-radius: 16px; width: min(420px, calc(100% - 30px)); padding: 24px; box-shadow: 0 20px 70px #172b4d40; }
+dialog::backdrop { background: #101e35a6; }
+dialog form { display: flex; flex-direction: column; gap: 14px; }
+dialog h2 { margin-bottom: 4px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 5px; }
+@media (max-width: 700px) {
+  .container { padding: 16px 12px 20px; }
+  .hero { padding: 24px 20px; }
+  .panel { padding: 16px; }
+  .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .controls .field { flex: 1 1 100%; }
+  .controls > .button { width: 100%; }
+  .section-heading { align-items: flex-start; flex-direction: column; }
+  .footer-row { align-items: flex-start; flex-direction: column; }
+  .footer-row .button { width: 100%; }
+}
+
+</style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">STUDENT PORTAL</p>
+      <h1>Attendance Manager</h1>
+      <p>Mark, review, and manage daily student attendance.</p>
+    </header>
+
+    <section class="panel controls">
+      <div class="field">
+        <label for="attendanceDate">Attendance date</label>
+        <input type="date" id="attendanceDate">
+      </div>
+      <div class="field search-field">
+        <label for="searchInput">Search students</label>
+        <input type="search" id="searchInput" placeholder="Search by student name...">
+      </div>
+      <button id="addStudentBtn" class="button primary">+ Add student</button>
+    </section>
+
+    <section class="stats" aria-label="Attendance summary">
+      <article class="stat-card"><span>Total students</span><strong id="totalCount">0</strong></article>
+      <article class="stat-card"><span>Present</span><strong id="presentCount">0</strong></article>
+      <article class="stat-card"><span>Absent</span><strong id="absentCount">0</strong></article>
+      <article class="stat-card"><span>Not marked</span><strong id="unmarkedCount">0</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Class register</h2>
+          <p>Choose Present or Absent for each student. Changes are saved in this browser.</p>
+        </div>
+        <button id="clearDayBtn" class="button subtle">Clear this day</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Student name</th><th>Attendance</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="studentTable"></tbody>
+        </table>
+      </div>
+      <p id="emptyMessage" class="empty-message" hidden>No students found. Add a student to get started.</p>
+      <div class="footer-row">
+        <span id="saveStatus" class="save-status" role="status">Your changes are saved automatically.</span>
+        <button id="exportBtn" class="button primary">Export CSV</button>
+      </div>
+    </section>
+    <footer>Student Attendance Management System · Built with HTML, CSS &amp; JavaScript</footer>
+  </main>
+
+  <dialog id="studentDialog">
+    <form id="studentForm" method="dialog">
+      <h2 id="dialogTitle">Add student</h2>
+      <label for="studentName">Student name</label>
+      <input id="studentName" name="studentName" type="text" maxlength="80" placeholder="Enter student name" required>
+      <div class="dialog-actions">
+        <button type="button" id="cancelDialogBtn" class="button subtle">Cancel</button>
+        <button type="submit" class="button primary">Save student</button>
+      </div>
+    </form>
+  </dialog>
+  <script>
+const STORAGE_KEY = "studentAttendanceManager_v1";
+
+const defaultData = {
+  students: [
+    { id: 1, name: "Ayesha Khan" },
+    { id: 2, name: "Ali Ahmed" },
+    { id: 3, name: "Fatima Noor" },
+    { id: 4, name: "Hassan Raza" },
+    { id: 5, name: "Zainab Malik" }
+  ],
+  attendance: {}
+};
+
+let data = loadData();
+let editingStudentId = null;
+
+const dateInput = document.getElementById("attendanceDate");
+const searchInput = document.getElementById("searchInput");
+const studentTable = document.getElementById("studentTable");
+const dialog = document.getElementById("studentDialog");
+const studentForm = document.getElementById("studentForm");
+const studentNameInput = document.getElementById("studentName");
+
+function localDateString(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+dateInput.value = localDateString();
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : structuredClone(defaultData);
+  } catch (error) {
+    return JSON.parse(JSON.stringify(defaultData));
+  }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  document.getElementById("saveStatus").textContent = "✓ Saved automatically in this browser";
+}
+
+function attendanceForDate() {
+  if (!data.attendance[dateInput.value]) data.attendance[dateInput.value] = {};
+  return data.attendance[dateInput.value];
+}
+
+function render() {
+  const records = attendanceForDate();
+  const search = searchInput.value.trim().toLowerCase();
+  const visibleStudents = data.students.filter(student => student.name.toLowerCase().includes(search));
+
+  studentTable.innerHTML = "";
+  visibleStudents.forEach((student, index) => {
+    const status = records[student.id] || "";
+    const row = document.createElement("tr");
+
+    const numberCell = document.createElement("td");
+    numberCell.textContent = String(index + 1);
+
+    const nameCell = document.createElement("td");
+    nameCell.className = "student-name";
+    nameCell.textContent = student.name;
+
+    const statusCell = document.createElement("td");
+    const statusButtons = document.createElement("div");
+    statusButtons.className = "status-buttons";
+    statusButtons.append(
+      makeStatusButton(student.id, "Present", "present", status === "Present"),
+      makeStatusButton(student.id, "Absent", "absent", status === "Absent")
+    );
+    statusCell.appendChild(statusButtons);
+
+    const actionCell = document.createElement("td");
+    const actions = document.createElement("div");
+    actions.className = "row-actions";
+    const editButton = document.createElement("button");
+    editButton.className = "small-button";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => openEditDialog(student));
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "small-button delete";
+    deleteButton.textContent = "Delete";
+    deleteButton.addEventListener("click", () => deleteStudent(student.id));
+    actions.append(editButton, deleteButton);
+    actionCell.appendChild(actions);
+
+    row.append(numberCell, nameCell, statusCell, actionCell);
+    studentTable.appendChild(row);
+  });
+
+  document.getElementById("emptyMessage").hidden = visibleStudents.length > 0;
+  updateStats(records);
+}
+
+function makeStatusButton(studentId, label, className, active) {
+  const button = document.createElement("button");
+  button.className = `status-button ${className}${active ? " active" : ""}`;
+  button.textContent = label;
+  button.setAttribute("aria-pressed", String(active));
+  button.addEventListener("click", () => {
+    const records = attendanceForDate();
+    records[studentId] = label;
+    saveData();
+    render();
+  });
+  return button;
+}
+
+function updateStats(records) {
+  const present = Object.values(records).filter(value => value === "Present").length;
+  const absent = Object.values(records).filter(value => value === "Absent").length;
+  document.getElementById("totalCount").textContent = data.students.length;
+  document.getElementById("presentCount").textContent = present;
+  document.getElementById("absentCount").textContent = absent;
+  document.getElementById("unmarkedCount").textContent = Math.max(data.students.length - present - absent, 0);
+}
+
+function openAddDialog() {
+  editingStudentId = null;
+  document.getElementById("dialogTitle").textContent = "Add student";
+  studentNameInput.value = "";
+  dialog.showModal();
+  studentNameInput.focus();
+}
+
+function openEditDialog(student) {
+  editingStudentId = student.id;
+  document.getElementById("dialogTitle").textContent = "Edit student";
+  studentNameInput.value = student.name;
+  dialog.showModal();
+  studentNameInput.focus();
+}
+
+studentForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const name = studentNameInput.value.trim();
+  if (!name) return;
+
+  if (editingStudentId !== null) {
+    const student = data.students.find(item => item.id === editingStudentId);
+    if (student) student.name = name;
+  } else {
+    const nextId = data.students.reduce((max, student) => Math.max(max, student.id), 0) + 1;
+    data.students.push({ id: nextId, name });
+  }
+
+  saveData();
+  dialog.close();
+  render();
+});
+
+document.getElementById("addStudentBtn").addEventListener("click", openAddDialog);
+document.getElementById("cancelDialogBtn").addEventListener("click", () => dialog.close());
+document.getElementById("clearDayBtn").addEventListener("click", () => {
+  if (!confirm(`Clear attendance for ${dateInput.value}?`)) return;
+  data.attendance[dateInput.value] = {};
+  saveData();
+  render();
+});
+document.getElementById("exportBtn").addEventListener("click", exportCSV);
+dateInput.addEventListener("change", render);
+searchInput.addEventListener("input", render);
+
+function deleteStudent(studentId) {
+  const student = data.students.find(item => item.id === studentId);
+  if (!student || !confirm(`Delete ${student.name} from the register?`)) return;
+  data.students = data.students.filter(item => item.id !== studentId);
+  Object.values(data.attendance).forEach(records => delete records[studentId]);
+  saveData();
+  render();
+}
+
+function exportCSV() {
+  const date = dateInput.value;
+  const records = attendanceForDate();
+  const rows = [["Date", "Student Name", "Attendance"]];
+  data.students.forEach(student => rows.push([date, student.name, records[student.id] || "Not marked"]));
+  const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `attendance-${date}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+saveData();
+render();
+
+</script>
+</body>
+</html>
